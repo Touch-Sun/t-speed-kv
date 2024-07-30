@@ -57,8 +57,37 @@ void start_server(int port) {
 
     // 循环等待客户端连接
     while ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) >= 0) {
-        LOG_INFO("New client connected");
-        // TODO: 处理客户端请求
+        // 1. 定义客户端地址结构体
+        struct sockaddr_in client_addr;
+        // 2. 定义结构体的长度
+        socklen_t client_addr_len = sizeof(client_addr);
+        // 3. 获取客户端(对端)地址信息存储在client_addr中
+        getpeername(new_socket, (struct sockaddr*)&client_addr, &client_addr_len);
+
+        // 将客户端IP地址和端口号转换为字符串
+        char client_ip[INET_ADDRSTRLEN];
+        // 1. 将二进制的ip地址形式转化为字符串形式
+        inet_ntop(AF_INET, &client_addr.sin_addr, client_ip, INET_ADDRSTRLEN);
+        // 2. 获取端口号 使用字节序转换函数ntohs 从网络字节序转换为主机字节序
+        // 2.1 传输时统一使用网络字节序，但是在接收时机器不同，架构不同，字节序不同，需要转换
+        int client_port = ntohs(client_addr.sin_port);
+
+        LOG_INFO("New client connected: %s:%d", client_ip, client_port);
+
+        // 处理客户端请求
+        char buffer[1024] = {0};
+        int valread;
+        while ((valread = read(new_socket, buffer, sizeof(buffer) - 1)) > 0) {
+            buffer[valread] = '\0';
+            LOG_INFO("Received from client: %s", buffer);
+            // 原样返回给客户端
+            send(new_socket, buffer, strlen(buffer), 0);
+            LOG_INFO("Echoed back to client: %s", buffer);
+        }
+
+        // 关闭连接
+        close(new_socket);
+        LOG_INFO("Client disconnected: %s:%d", client_ip, client_port);
     }
 
     // 如果accept返回值小于0表示连接失败
