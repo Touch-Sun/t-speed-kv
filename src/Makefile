@@ -5,7 +5,7 @@ LDFLAGS =
 RM = rm -f
 MKDIR = mkdir -p ../build/core
 
-SRC = main.c core/server.c core/client.c core/db.c core/network.c core/util.c core/log_util.c
+SRC = main.c core/server.c core/client.c core/db.c core/network.c core/util.c core/log_util.c core/handler.c
 OBJ = $(patsubst %.c,../build/%.o,$(SRC))
 TARGET = ../build/t-speed-kv
 

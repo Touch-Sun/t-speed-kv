@@ -10,6 +10,7 @@
 #include <sys/socket.h>
 #include "../includes/server.h"
 #include "../includes/log_util.h"
+#include "../includes/handler.h"
 
 void start_server(int port) {
     // 定义服务端套接字描述符，新连接套接字描述符 创建套接字后返回的文件描述符 用于标识这个套接字
@@ -75,7 +76,7 @@ void start_server(int port) {
         LOG_INFO("New client connected: %s:%d", client_ip, client_port);
 
         // 处理客户端请求
-        char buffer[1024] = {0};
+        /*char buffer[1024] = {0};
         int valread;
         while ((valread = read(new_socket, buffer, sizeof(buffer) - 1)) > 0) {
             buffer[valread] = '\0';
@@ -83,7 +84,8 @@ void start_server(int port) {
             // 原样返回给客户端
             send(new_socket, buffer, strlen(buffer), 0);
             LOG_INFO("Echoed back to client: %s", buffer);
-        }
+        }*/
+        handle_client(new_socket);
 
         // 关闭连接
         close(new_socket);
